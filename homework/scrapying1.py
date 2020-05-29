@@ -21,19 +21,17 @@ for song in songs:
     # movie 안에 a 가 있으면,
     a_tag = song.select_one('td.info > a.title.ellipsis')
 
-
     if a_tag is not None:
         #body-content > div.newest-list > div > table > tbody > tr:nth-child(1) > td.number
         rank_tag = song.select_one('td.number') # img 태그의 alt 속성값을 가져오기
         r = rank_tag.text.split()
         rank = r[0]
 
-        title_tag = a_tag.text.strip()   
-                                          # a 태그 사이의 텍스트를 가져오기
+        title_tag = a_tag.text.strip()    # a 태그 사이의 텍스트를 가져오기
+                                         
         singer_tag = song.select_one('td.info > a.artist.ellipsis')
-        singer = singer_tag.text
-                    # td 태그 사이의 텍스트를 가져오기
-    
+        singer = singer_tag.text    # td 태그 사이의 텍스트를 가져오기
+                  
         print(rank, title_tag, singer)
 
 '''
