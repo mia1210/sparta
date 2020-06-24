@@ -1,0 +1,45 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>여성작가검색!</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css"
+    />
+    <script
+      defer
+      src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"
+    ></script>
+    </head>
+
+    <body>
+let temp_html = `<div class="card">
+    <div class="card-content">
+      <div class="media">
+        <div class="media-content">
+          <a href="${link}" target="_blank" class="writer-name title is-4">${title} ${name} (좋아요: ${like})</a>
+          <p class="subtitle is-6">${recent}</p>
+        </div>
+      </div>
+    </div>
+    <footer class="card-footer">
+      <a href="#" onclick="like_writer('${name}')" class="card-footer-item has-text-info">
+        위로!
+        <span class="icon">
+          <i class="fas fa-thumbs-up"></i>
+        </span>
+      </a>
+      <a href="#" onclick="delete_writer('${name}')" class="card-footer-item has-text-danger">
+        삭제
+        <span class="icon">
+          <i class="fas fa-ban"></i>
+        </span>
+      </a>
+    </footer>
+  </div>`
+</body>
+</html>
