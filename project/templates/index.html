@@ -1,0 +1,418 @@
+<<<<<<< HEAD
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>여성작가검색</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css" />
+  <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+  <style>
+    .make-center {
+      text-align: center;
+    }
+
+    .writer-list {
+      width: 100%;
+      margin: 20px auto 0 auto;
+      padding: 0 40px;
+    }
+
+    .writers {
+      width: 100%;
+    }
+
+    .writers>table {
+      width: 100%;
+    }
+
+    .writer-name {
+      display: inline-block;
+    }
+
+    .writer-name:hover {
+      text-decoration: underline;
+    }
+
+    .card {
+      margin-bottom: 15px;
+    }
+
+    #table-text {
+      width: 50%
+    }
+  </style>
+  <script>
+    let page = 1;
+    $(document).ready(function () {
+      show_writer();
+    });
+    function getPage(num) {
+      page = num
+      show_writer()
+    }
+    function show_writer() {
+      $('#writer-box').empty()
+      listing(page);
+    }
+    function clickModal(link, author, title) {
+      console.log(link, author, title)
+      $('#EditModal').modal();
+    }
+    function listing(page) {
+      $("#pagination-wrapper").empty()
+      $.ajax({
+        type: "GET",
+        url: `/api/list?page=${page}`,
+        data: {},
+        success: function (response) {
+          let writers = response['writer_list']
+          let total_page = Number(response['total_page'])
+          let current_page = Number(response['current_page'])
+          for (let i = 0; i < writers.length; i++) {
+            let writer = writers[i]
+            let id = writer['id']
+            let date = writer['date']
+            let user_name = writer['user_name']
+            let text = writer['text']
+            let link = writer['link']
+            let RT = writer['RT']
+            let favorites = writer['favorites']
+            let author = writer['author']
+            let title = writer['title']
+            console.log(title)
+            if (title === undefined) {
+              title = '제목을 입력해주세요'
+            }
+            if (author === undefined) {
+              author = '저자를 입력해주세요'
+            }
+            let temp_html = `<tr onclick="clickModal('${link}', '${author}', '${title}')">
+                            <td>${date}</td>
+                            <td>${user_name}</td>
+                            <td><a href="${link}"target="_blank">${text}</a></td>
+                            <td>${RT}</td>
+                            <td>${favorites}</td>
+                            <td>${author}</td>
+                            <td>${title}</td>
+                         </tr>`;
+            $('#writer-box').append(temp_html)
+          }
+          make_pagination(current_page, total_page)
+        }
+      })
+    }
+    function make_pagination(current_page, total_page) {
+      let pagination_html = ''
+      if (current_page != 1) {
+        pagination_html += `<li class="page-item"><a class="page-link" href="#" onclick="getPage(${current_page - 1})">이전</a></li>`
+      }
+      if (current_page > 2) {
+        pagination_html += `<li class="page-item disabled"><a class="page-link" href="#">...</a></li>`
+      }
+      if (current_page > 1) {
+        pagination_html += `<li class="page-item"><a class="page-link" href="#" onclick="getPage(${current_page - 1})">${current_page - 1}</a></li>`
+      }
+      pagination_html += `<li class="page-item active"><a class="page-link" href="#" onclick="getPage(${current_page})">${current_page}</a></li>`
+      if (total_page - current_page > 0) {
+        pagination_html += `<li class="page-item"><a class="page-link" href="#" onclick="getPage(${current_page + 1})">${current_page + 1}</a></li>`
+      }
+      if (total_page - current_page > 1) {
+        pagination_html += `<li class="page-item disabled"><a class="page-link" href="#">...</a></li>`
+      }
+      if (current_page != total_page) {
+        pagination_html += `<li class="page-item"><a class="page-link" href="#" onclick="getPage(${current_page + 1})">다음</a></li>`
+      }
+      $("#pagination-wrapper").append(pagination_html)
+    }
+    function writer_input(link, author, title) {
+    let title = $('#title').val();
+    let author = $('#author').val();
+      $.ajax({
+        type: "POST",
+        url: "/api/list",
+        data: { 'link_give': link,  'author_give': author ,'title_give': title },
+        success: function (response) {
+          if (response['result'] == 'success') {
+            // 2. '좋아요 완료!' 얼럿을 띄웁니다.
+            alert('좋아요 완료!')
+            // 3. 변경된 정보를 반영하기 위해 새로고침합니다.
+            window.location.reload()
+          }
+        }
+    });
+}
+  </script>
+</head>
+
+<body>
+  <section class="hero is-warning">
+    <div class="hero-body">
+      <div class="container make-center">
+        <h1 class="title">
+          여성 작가 해시태그 😆
+        </h1>
+        <h2 class="subtitle">
+          같이 읽어요
+        </h2>
+      </div>
+    </div>
+  </section>
+  <div class="writer-list" id="top-box">
+    <div class="writers">
+      <table class="table">
+        <thead>
+          <tr>
+            <th class="meta_info" scope="col">날짜</th>
+            <th class="meta_info" scope="col">게시자</th>
+            <th class="meta_info" scope="col" id="table-text">본문</th>
+            <th class="meta_info" scope="col">RT</th>
+            <th class="meta_info" scope="col">좋아요</th>
+            <th class="meta_info" scope="col">저자명</th>
+            <th class="meta_info" scope="col">제목</th>
+          </tr>
+        </thead>
+        <tbody id="writer-box">
+        </tbody>
+      </table>
+      <nav aria-label="Page navigation example">
+        <ul class="pagination  justify-content-center" id="pagination-wrapper">
+        </ul>
+      </nav>
+    </div>
+  </div>
+  <div class="modal fade" id="EditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">입력해주세요</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <label for="recipient-name" class="col-form-label">저자명:</label>
+              <input type="text" class="form-control" id="author">
+            </div>
+            <div class="form-group">
+              <label for="message-text" class="col-form-label">제목명:</label>
+              <textarea class="form-control" id="title"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+          <button onclick="writer_input('link', 'author', 'title')" type="button" class="btn btn-primary">저장</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+=======
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>여성작가검색</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css" />
+  <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+  <script type="text/javascript"  src="js/jquery-3.1.1.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <style>
+    .make-center {
+      text-align: center;
+    }
+
+    .writer-list {
+      width: 100%;
+      margin: 20px auto 0 auto;
+      padding: 0 40px;
+
+    }
+
+    .writers {
+      width: 100%;
+    }
+
+    .writers > table {
+      width: 100%;
+    }
+
+    .writer-name {
+      display: inline-block;
+    }
+
+    .writer-name:hover {
+      text-decoration: underline;
+    }
+
+    .card {
+      margin-bottom: 15px;
+    }
+
+    #table-text {
+      width: 50%
+    }
+  </style>
+
+  <script>
+
+    let page = 1;
+    $(document).ready(function () {
+      show_writer();
+    });
+
+    function getPage(num) {
+      page = num
+      show_writer()
+    }
+
+    function show_writer() {
+      $('#writer-box').empty()
+      listing(page);
+    }
+
+    function clickModal(id, author, title) {
+      console.log(id, author, title)
+      $('#EditModal').modal();
+    }
+
+    function listing(page){
+
+    $.ajax({
+      type: "GET",
+      url: `/api/list?page=${page}`,
+      data: {},
+      success: function (response) {
+        let writers = response['writer_list']
+        let total_count = response['total_page']
+        console.log(total_count)
+        for (let i = 0; i < writers.length; i++) {
+          let writer = writers[i]
+          let id = writer['id']
+          let date = writer['date']
+          let user_name = writer['user_name']
+          let text = writer['text']
+          let link = writer['link']
+          let RT = writer['RT']
+          let favorites = writer['favorites']
+          let author = writer['author']
+          let title = writer['title']
+
+          console.log(title)
+          if (title === undefined) {
+                title = '제목을 입력해주세요'
+            }  
+            if (author === undefined) {
+                author = '저자를 입력해주세요'
+            }
+
+        let temp_html = `<tr onclick="clickModal('${link}', '${author}', '${title}')">
+                            <td>${date}</td>
+                            <td>${user_name}</td>
+                            <td><a href="${link}"target="_blank">${text}</a></td>
+                            <td>${RT}</td>
+                            <td>${favorites}</td>
+                            <td>${author}</td>
+                            <td>${title}</td>
+                         </tr>`;
+      $('#writer-box').append(temp_html)}
+    }})}
+
+  // </script>
+</head>
+
+<body>
+  <section class="hero is-warning">
+    <div class="hero-body">
+      <div class="container make-center">
+        <h1 class="title">
+          여성 작가 해시태그 😆
+        </h1>
+        <h2 class="subtitle">
+          같이 읽어요
+        </h2>
+      </div>
+    </div>
+  </section>
+  <div class="writer-list" id="top-box">
+    <div class="writers">
+      <table class="table">
+        <thead>
+          <tr>
+            <th class="meta_info" scope="col">날짜</th>
+            <th class="meta_info" scope="col">게시자</th>
+            <th class="meta_info" scope="col" id="table-text">본문</th>
+            <th class="meta_info" scope="col">RT</th>
+            <th class="meta_info" scope="col">좋아요</th>
+            <th class="meta_info" scope="col">저자명</th>
+            <th class="meta_info" scope="col">제목</th>
+          </tr>
+        </thead>
+        <tbody id="writer-box">
+        </tbody>
+      </table>
+
+      <nav aria-label="Page navigation example">
+        <ul class="pagination">
+          <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+          <li class="page-item"><a class="page-link" href="#" onclick="getPage(1)">1</a></li>
+          <li class="page-item"><a class="page-link" href="#" onclick="getPage(2)">2</a></li>
+          <li class="page-item"><a class="page-link" href="#">3</a></li>
+          <li class="page-item"><a class="page-link" href="#">Next</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <div class="modal fade" id="EditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <label for="recipient-name" class="col-form-label">저자명:</label>
+              <input type="text" class="form-control" id="recipient-name">
+            </div>
+            <div class="form-group">
+              <label for="message-text" class="col-form-label">제목명:</label>
+              <textarea class="form-control" id="message-text"></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Send message</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+>>>>>>> 776cf777de749b3aeb83a90a4dd374247baa330a
+</html>
